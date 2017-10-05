@@ -1,5 +1,5 @@
 from sympy import *
-
+import numpy as np
 
 
 def phi(xi, yi, di):
@@ -28,11 +28,13 @@ def cm_rhs(ci, bi, xi):
     return ci - z, n_b
 
 
-def n_sys_eq(ai, bi, ri, r0i):
+def n_sys_eq(ai, bi, ri, ri_t, r0i, r0i_t):
     for i in range(len(ri)):
+        ai = ai.replace(ri_t[i], r0i_t[i])
         ai = ai.replace(ri[i], r0i[i])
+        bi = bi.replace(ri_t[i], r0i_t[i])
         bi = bi.replace(ri[i], r0i[i])
-    return ai, bi
+    return N(ai), N(bi)
 
 
 def st_space(ri, ri_t):
@@ -48,7 +50,8 @@ def st_space(ri, ri_t):
 m = 1
 g = 9.81
 d = 1
-ic = Matrix([sqrt(2)/2, 0, sqrt(2)/2, 0])
+r_ic = Matrix([sqrt(2)/2, sqrt(2)/2])
+r_t_ic = Matrix([0, 0])
 
 t = Symbol('t')
 lbd = Symbol('lbd')
@@ -68,10 +71,7 @@ Z = zeros(phi_r.shape[1])
 A = M.row_join(phi_r).col_join(phi_r.T.row_join(Z))
 C, Nb = cm_rhs(A, b, unknowns)
 Q = F.col_join(Nb)
-<<<<<<< HEAD
+
 q = st_space(r, r_t)
-pprint(q[0].type)
-=======
-c = st_space(r, r_t)
-pprint(n_sys_eq(C, Nb, c, ic))
->>>>>>> 485c48a919945ac09d9a97a60005491e6942f152
+
+pprint(n_sys_eq(C, Q, r, r_t, r_ic, r_t_ic))

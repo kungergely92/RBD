@@ -29,24 +29,26 @@ def cm_rhs(ci, bi, xi):
 
 
 def n_sys_eq(ai, bi, ri, r0i):
-    for i in enumerate(ri):
+    for i in range(len(ri)):
         ai = ai.replace(ri[i], r0i[i])
         bi = bi.replace(ri[i], r0i[i])
     return ai, bi
 
 
 def st_space(ri, ri_t):
-    c = zeros(2*len(ri),1)
-    for i in enumerate(c):
-        if i%2 is 0:
-            c[i] =
-    #c[0::2] = ri
-    #c[1::2] = ri_t
+
+    c = zeros(2*len(ri), 1)
+    for i in range(len(c)):
+        if i % 2 is 0:
+            c[i] = ri[int(i/2)]
+        else:
+            c[i] = ri_t[int((i-1)/2)]
     return c
 
 m = 1
 g = 9.81
 d = 1
+ic = Matrix([sqrt(2)/2, 0, sqrt(2)/2, 0])
 
 t = Symbol('t')
 lbd = Symbol('lbd')
@@ -56,9 +58,9 @@ y = Function('y')(t)
 phi_r = Matrix([phi(x, y, d).diff(x), phi(x, y, d).diff(y)])
 phi_t = Matrix([phi(x, y, d).diff(t)])
 unknowns = Matrix([x.diff(t, t), y.diff(t, t), lbd])
-r0 = Matrix([sqrt(2)/2, 0, sqrt(2)/2, 0])
 r = Matrix([x, y])
 r_t = r.diff(t)
+
 M = Matrix([[m, 0], [0, m]])
 F = Matrix([0, m*g])
 b = Matrix([- phi_r.T*r.diff(t) - phi_t.diff(t)])
@@ -66,5 +68,10 @@ Z = zeros(phi_r.shape[1])
 A = M.row_join(phi_r).col_join(phi_r.T.row_join(Z))
 C, Nb = cm_rhs(A, b, unknowns)
 Q = F.col_join(Nb)
-c = st_space(r,r_t)
-pprint(c[0::2].shape)
+<<<<<<< HEAD
+q = st_space(r, r_t)
+pprint(q[0].type)
+=======
+c = st_space(r, r_t)
+pprint(n_sys_eq(C, Nb, c, ic))
+>>>>>>> 485c48a919945ac09d9a97a60005491e6942f152

@@ -1,5 +1,7 @@
 from sympy import *
-
+from scipy import sparse
+from numpy import empty
+from scipy.sparse.linalg import dsolve
 
 
 def phi(xi, yi, di):
@@ -28,13 +30,13 @@ def cm_rhs(ci, bi, xi):
     return ci - z, n_b
 
 
-def n_sys_eq(ai, bi, ri, r0i):
-    pi = zeros(ai.shape[0], ai.shape[1])
-    qi = zeros(bi.shape[0], bi.shape[1])
+def n_sys_eq(ai, bi, ri, ri_t, r0i, r0i_t):
     for i in range(len(ri)):
+        ai = ai.replace(ri_t[i], r0i_t[i])
         ai = ai.replace(ri[i], r0i[i])
+        bi = bi.replace(ri_t[i], r0i_t[i])
         bi = bi.replace(ri[i], r0i[i])
-    return ai, bi
+    return N(ai), N(bi)
 
 
 def st_space(ri, ri_t):
@@ -47,11 +49,20 @@ def st_space(ri, ri_t):
     return w
 
 
+def matrix2sparse(m):
+    """Converts SymPy's matrix to a NumPy array."""
+    a = empty(m.shape, dtype=float)
+    for i in range(m.rows):
+        for j in range(m.cols):
+            a[i, j] = m[i, j]
+    return sparse.csr_matrix(a)
+
+
 m = 1
 g = 9.81
 d = 1
-ic = Matrix([sqrt(2)/2, 0, sqrt(2)/2, 0])
-
+ic = Matrix([sqrt(2)/2, sqrt(2)/2])
+ic_t = Matrix([0, 0])
 t = Symbol('t')
 lbd = Symbol('lbd')
 x = Function('x')(t)
@@ -68,7 +79,15 @@ F = Matrix([0, m*g])
 b = Matrix([- phi_r.T*r.diff(t) - phi_t.diff(t)])
 Z = zeros(phi_r.shape[1])
 A = M.row_join(phi_r).col_join(phi_r.T.row_join(Z))
+
 C, Nb = cm_rhs(A, b, unknowns)
 Q = F.col_join(Nb)
-c = st_space(r, r_t)
-pprint(n_sys_eq(C, Nb, c, ic))
+
+N_C, N_Q = n_sys_eq(C, Q, r, r_t, ic, ic_t)
+
+C_np = matrix2sparse(N_C)
+Q_np = matrix2sparse(N_Q)
+
+x = dsolve.spsolve(C_np, Q_np, use_umfpack=False)
+
+pprint(x)

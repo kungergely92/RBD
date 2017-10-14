@@ -32,6 +32,7 @@ def cm_rhs(ci, bi, xi):
 
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 def n_sys_eq(ai, bi, ri, ri_t, r0i, r0i_t):
     for i in range(len(ri)):
         ai = ai.replace(ri_t[i], r0i_t[i])
@@ -96,6 +97,8 @@ def sys_rk4(ai, qi, r, r_t, ic, ic_t, h):
 
 =======
 >>>>>>> parent of 219673c... Implemented RK4
+=======
+>>>>>>> parent of 219673c... Implemented RK4
 def n_sys_eq(ai, bi, ri, ri_t, r0i, r0i_t):
     for i in range(len(ri)):
         ai = ai.replace(ri_t[i], r0i_t[i])
@@ -128,6 +131,7 @@ m = 1
 g = 9.81
 d = 1
 <<<<<<< HEAD
+<<<<<<< HEAD
 r_ic = Matrix([sqrt(2)/2, sqrt(2)/2])
 r_t_ic = Matrix([0, 0])
 
@@ -136,6 +140,10 @@ h = 0.01
 beta = 2
 ic = [N(sqrt(2)/2), N(sqrt(2)/2)]
 ic_t = [0, 0]
+=======
+ic = Matrix([sqrt(2)/2, sqrt(2)/2])
+ic_t = Matrix([0, 0])
+>>>>>>> parent of 219673c... Implemented RK4
 =======
 ic = Matrix([sqrt(2)/2, sqrt(2)/2])
 ic_t = Matrix([0, 0])
@@ -161,6 +169,7 @@ C, Nb = cm_rhs(A, b, unknowns)
 Q = F.col_join(Nb)
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 q = st_space(r, r_t)
 
@@ -168,10 +177,13 @@ q = st_space(r, r_t)
 
 C_c, Q_c = cauchy_form(C, Q, r_t)
 =======
+=======
+>>>>>>> parent of 219673c... Implemented RK4
 N_C, N_Q = n_sys_eq(C, Q, r, r_t, ic, ic_t)
 
 C_np = matrix2sparse(N_C)
 Q_np = matrix2sparse(N_Q)
+<<<<<<< HEAD
 >>>>>>> parent of 219673c... Implemented RK4
 
 x = dsolve.spsolve(C_np, Q_np, use_umfpack=False)
@@ -182,5 +194,11 @@ pprint(y)
 pprint(y_t)
 pprint(lamb)
 =======
+pprint(x)
+>>>>>>> parent of 219673c... Implemented RK4
+=======
+
+x = dsolve.spsolve(C_np, Q_np, use_umfpack=False)
+
 pprint(x)
 >>>>>>> parent of 219673c... Implemented RK4

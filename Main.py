@@ -1,11 +1,8 @@
 from sympy import *
-<<<<<<< HEAD
 import numpy as np
-=======
 from scipy import sparse
 from numpy import empty
 from scipy.sparse.linalg import dsolve
->>>>>>> 219673c7c8a3b5a1effff237d2b344da3fe8ecd3
 
 
 def phi(xi, yi, di):
@@ -34,7 +31,6 @@ def cm_rhs(ci, bi, xi):
     return ci - z, n_b
 
 
-<<<<<<< HEAD
 def n_sys_eq(ai, bi, ri, ri_t, r0i, r0i_t):
     for i in range(len(ri)):
         ai = ai.replace(ri_t[i], r0i_t[i])
@@ -53,7 +49,7 @@ def st_space(ri, ri_t):
         else:
             c[i] = ri_t[int((i-1)/2)]
     return c
-=======
+
 def cauchy_form(ai, bi, ri_t):
     eye_m = eye(len(ri_t))
     z_m = zeros(ai.shape[0], len(ri_t))
@@ -86,19 +82,15 @@ def sys_rk4(ai, qi, r, r_t, ic, ic_t, h):
     x = dsolve.spsolve(nai, nqi, use_umfpack=False)
     k_4 = h*x
     yt_sol = ic_t + (k_1[0:len_ict] + 2*(k_2[0:len_ict] + k_3[0:len_ict])
-                     +k_4[0:len_ict])
+                     +k_4[0:len_ict])/6
     y_sol = ic + (k_1[len_ict:len_ic + len_ict] +
                   2*(k_2[len_ict:len_ic + len_ict] +
                   k_3[len_ict:len_ic + len_ict]) +
-                  k_4[len_ict:len_ic + len_ict])
+                  k_4[len_ict:len_ic + len_ict])/6
     lbd_sol = lbd + (k_1[len_ic+len_ict:] + 2*(k_2[len_ic+len_ict:] +
                                                k_3[len_ic+len_ict:])+
-                     k_4[len_ic+len_ict:])
+                     k_4[len_ic+len_ict:])/6
     return y_sol, yt_sol, lbd_sol
-
-
-
-
 
 
 def n_sys_eq(ai, bi, ri, ri_t, r0i, r0i_t):
@@ -128,22 +120,18 @@ def matrix2sparse(m):
             a[i, j] = m[i, j]
     return sparse.csr_matrix(a)
 
->>>>>>> 219673c7c8a3b5a1effff237d2b344da3fe8ecd3
 
 m = 1
 g = 9.81
 d = 1
-<<<<<<< HEAD
 r_ic = Matrix([sqrt(2)/2, sqrt(2)/2])
 r_t_ic = Matrix([0, 0])
 
-=======
 alpha = 5
 h = 0.01
 beta = 2
 ic = [N(sqrt(2)/2), N(sqrt(2)/2)]
 ic_t = [0, 0]
->>>>>>> 219673c7c8a3b5a1effff237d2b344da3fe8ecd3
 t = Symbol('t')
 lbd = Symbol('lbd')
 x = Function('x')(t)
@@ -167,16 +155,16 @@ A = M.row_join(phi_r).col_join(phi_r.T.row_join(Z))
 C, Nb = cm_rhs(A, b_baumgarte, unknowns)
 Q = F.col_join(Nb)
 
-<<<<<<< HEAD
+
 q = st_space(r, r_t)
 
-pprint(n_sys_eq(C, Q, r, r_t, r_ic, r_t_ic))
-=======
+# pprint(n_sys_eq(C, Q, r, r_t, r_ic, r_t_ic))
+
 C_c, Q_c = cauchy_form(C, Q, r_t)
 
 y, y_t, lamb = sys_rk4(C_c, Q_c, r, r_t, ic, ic_t, h)
 
+pprint(ic)
 pprint(y)
 pprint(y_t)
 pprint(lamb)
->>>>>>> 219673c7c8a3b5a1effff237d2b344da3fe8ecd3

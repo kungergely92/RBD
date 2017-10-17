@@ -38,13 +38,13 @@ def cm_rhs(ci, bi, xi):
 def n_sys_eq(ai, bi, ri, ri_t, r0i, r0i_t):
 
     """The function replaces the symbolic variables with their numerical
-    values."""
+    values and returns with sparse matrices."""
 
-    for i in range(len(ri)):
-        ai = ai.subs(ri_t[i], r0i_t[i])
-        ai = ai.subs(ri[i], r0i[i])
-        bi = bi.subs(ri_t[i], r0i_t[i])
-        bi = bi.subs(ri[i], r0i[i])
+    for j in range(len(ri)):
+        ai = ai.subs(ri_t[j], r0i_t[j])
+        ai = ai.subs(ri[j], r0i[j])
+        bi = bi.subs(ri_t[j], r0i_t[j])
+        bi = bi.subs(ri[j], r0i[j])
     return matrix2sparse(N(ai)), matrix2sparse(N(bi))
 
 
@@ -77,36 +77,36 @@ def cauchy_form(ai, bi, ri_t):
 
 def sys_rk4(ai, qi, r, r_t, ic, ic_t, h):
 
-    nai, nqi = n_sys_eq(ai, qi, r, r_t, ic, ic_t)
+    nai_1, nqi_1 = n_sys_eq(ai, qi, r, r_t, ic, ic_t)
 
     len_ict = len(ic_t)
     len_ic = len(ic)
+    xi_1 = dsolve.spsolve(nai_1, nqi_1, use_umfpack=False)
+    lbd = xi_1[len_ic+len_ict:]
+    k_1 = h*xi_1
 
-    x = dsolve.spsolve(nai, nqi, use_umfpack=False)
-    lbd = x[len_ic+len_ict:]
-    k_1 = h*x
-    ick = ic + 0.5*k_1[0:len_ict]
-    ictk = ic_t + 0.5*k_1[len_ict:len_ic + len_ict]
-    nai, nqi = n_sys_eq(ai, qi, r, r_t, ick, ictk)
+    ictk_1 = ic_t + 0.5 * k_1[len_ict:len_ic + len_ict]
+    ick_1 = ic + 0.5*k_1[0:len_ict]
+    nai_2, nqi_2 = n_sys_eq(ai, qi, r, r_t, ick_1, ictk_1)
+    xi_2 = dsolve.spsolve(nai_2, nqi_2, use_umfpack=False)
+    k_2 = h*xi_2
 
-    x = dsolve.spsolve(nai, nqi, use_umfpack=False)
-    k_2 = h*x
-    ick = ic + 0.5 * k_2[0:len_ict]
-    ictk = ic_t + 0.5 * k_2[len_ict:len_ic + len_ict]
-    nai, nqi = n_sys_eq(ai, qi, r, r_t, ick, ictk)
+    ictk_2 = ic_t + 0.5 * k_2[len_ict:len_ic + len_ict]
+    ick_2 = ic + 0.5 * k_2[0:len_ict]
+    nai_3, nqi_3 = n_sys_eq(ai, qi, r, r_t, ick_2, ictk_2)
+    xi_3 = dsolve.spsolve(nai_3, nqi_3, use_umfpack=False)
+    k_3 = h*xi_3
 
-    x = dsolve.spsolve(nai, nqi, use_umfpack=False)
-    k_3 = h*x
-    ick = ic + k_3[0:len(ic_t)]
-    ictk = ic_t + k_3[len_ict:len_ic + len_ict]
-    nai, nqi = n_sys_eq(ai, qi, r, r_t, ick, ictk)
+    ictk_3 = ic_t + k_3[len_ict:len_ic + len_ict]
+    ick_3 = ic + k_3[0:len_ict]
+    nai_4, nqi_4 = n_sys_eq(ai, qi, r, r_t, ick_3, ictk_3)
+    xi_4 = dsolve.spsolve(nai_4, nqi_4, use_umfpack=False)
+    k_4 = h*xi_4
 
-    x = dsolve.spsolve(nai, nqi, use_umfpack=False)
-    k_4 = h*x
+    y_sol = ic + (k_1[0:len_ict] + 2*(k_2[0:len_ict] + k_3[0:len_ict]) +
+                  k_4[0:len_ict])/6
 
-    yt_sol = ic_t + (k_1[0:len_ict] + 2*(k_2[0:len_ict] + k_3[0:len_ict])
-                     +k_4[0:len_ict])/6
-    y_sol = ic + (k_1[len_ict:len_ic + len_ict] +
+    yt_sol = ic_t + (k_1[len_ict:len_ic + len_ict] +
                   2*(k_2[len_ict:len_ic + len_ict] +
                   k_3[len_ict:len_ic + len_ict]) +
                   k_4[len_ict:len_ic + len_ict])/6
@@ -137,34 +137,29 @@ def animate(i,y):
     line.set_data(thisx, thisy)
     return line
 
-m = 1
-g = 9.81
-d = 1
 
-r_ic = Matrix([sqrt(2)/2, sqrt(2)/2])
-r_t_ic = Matrix([0, 0])
-
-alpha = 5
-h = 0.01
-beta = 2
-ic = [N(sqrt(2)/2), N(sqrt(2)/2)]
-ic_t = [0, 0]
 t = Symbol('t')
 lbd = Symbol('lbd')
 x = Function('x')(t)
 y = Function('y')(t)
+m = 1
+g = 9.81
+d_l = 1
+alpha = 10
+h = 0.01
+beta = 10
 
-phi_r = Matrix([phi(x, y, d).diff(x), phi(x, y, d).diff(y)])
-phi_t = Matrix([phi(x, y, d).diff(t)])
+phi_r = Matrix([phi(x, y, d_l).diff(x), phi(x, y, d_l).diff(y)])
+phi_t = Matrix([phi(x, y, d_l).diff(t)])
 unknowns = Matrix([x.diff(t, t), y.diff(t, t), lbd])
 r = Matrix([x, y])
 r_t = r.diff(t)
 
 M = Matrix([[m, 0], [0, m]])
 F = Matrix([0, m*g])
-b = Matrix([- phi_r.T*r.diff(t) - phi_t.diff(t)-2*alpha*(phi_r.T*r.diff(t) +
-                                                         phi_t.diff(t)) -
-            beta**2*phi(x, y, d)])
+b = Matrix([- (phi_r.diff(t)).T*r.diff(t) - phi_t.diff(t) -
+            2*alpha*(phi_r.T*r.diff(t) + phi_t) -
+            (beta**2)*phi(x, y, d_l)])
 Z = zeros(phi_r.shape[1])
 A = M.row_join(phi_r).col_join(phi_r.T.row_join(Z))
 
@@ -173,10 +168,10 @@ Q = F.col_join(Nb)
 
 C_c, Q_c = cauchy_form(C, Q, r_t)
 
-# y = sys_rk4(C_c, Q_c, r, r_t, ic, ic_t, h)[0]
-
 simulation_time = 10
 steps = 100
+ic = [N(sqrt(2)/2), N(sqrt(2)/2)]
+ic_t = [0, 0]
 
 y = []
 y_t = []
@@ -191,14 +186,4 @@ for i in range(steps-1):
     y_t.append(sys_rk4(C_c, Q_c, r, r_t, y[i], y_t[i], h)[1])
     time.append(i*h)
 
-fig = plt.figure()
-ax = fig.add_subplot(111, autoscale_on=False, xlim=(-2, 2), ylim=(-2, 2))
-ax.grid()
-
-line, = ax.plot([], [], 'o-', lw=2)
-
-ani = animation.FuncAnimation(fig, animate, np.arange(1, len(y)),
-                              interval=25, blit=True, init_func=init)
-
-
-plt.show()
+pprint(y)

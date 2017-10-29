@@ -5,8 +5,10 @@ from scipy.sparse.linalg import dsolve
 from numpy import sin, cos
 import numpy as np
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 import scipy.integrate as integrate
 import matplotlib.animation as animation
+import time
 
 
 def phi(xi, yi, di):
@@ -77,11 +79,11 @@ def cauchy_form(ai, bi, ri_t):
 
 def sys_rk4(ai, qi, r, r_t, ic, ic_t, h):
 
-    nai_1, nqi_1 = n_sys_eq(ai, qi, r, r_t, ic, ic_t)
+    nai, nqi = n_sys_eq(ai, qi, r, r_t, ic, ic_t)
 
     len_ict = len(ic_t)
     len_ic = len(ic)
-    xi_1 = dsolve.spsolve(nai_1, nqi_1, use_umfpack=False)
+    xi_1 = dsolve.spsolve(nai, nqi, use_umfpack=False)
     lbd = xi_1[len_ic+len_ict:]
     k_1 = h*xi_1
 
@@ -143,7 +145,7 @@ lbd = Symbol('lbd')
 x = Function('x')(t)
 y = Function('y')(t)
 m = 1
-g = 9.81
+g = -9.81
 d_l = 1
 alpha = 10
 h = 0.01
@@ -168,22 +170,55 @@ Q = F.col_join(Nb)
 
 C_c, Q_c = cauchy_form(C, Q, r_t)
 
-simulation_time = 10
-steps = 100
-ic = [N(sqrt(2)/2), N(sqrt(2)/2)]
+simulation_time = 4
+steps = int(simulation_time/h)
+ic = [N(sqrt(2)/2), -N(sqrt(2)/2)]
 ic_t = [0, 0]
 
-y = []
-y_t = []
-time = []
+y = [None]*int(steps)
+y_t = [None]*int(steps)
+t = [None]*int(steps)
 
-y.append(ic)
-y_t.append(ic_t)
-time.append(0)
-
+y[0] = ic
+y_t[0] = ic_t
+t[0] = 0
+start = time.clock()
+y_test = sys_rk4(C_c, Q_c, r, r_t, y[0], y_t[0], h)[0]
+end = time.clock()
 for i in range(steps-1):
-    y.append(sys_rk4(C_c, Q_c, r, r_t, y[i], y_t[i], h)[0])
-    y_t.append(sys_rk4(C_c, Q_c, r, r_t, y[i], y_t[i], h)[1])
-    time.append(i*h)
+    y[i+1] = sys_rk4(C_c, Q_c, r, r_t, y[i], y_t[i], h)[0]
+    y_t[i+1] = sys_rk4(C_c, Q_c, r, r_t, y[i], y_t[i], h)[1]
+    t[i+1] = i*h
 
-pprint(y)
+fig = plt.figure()
+ax = fig.add_subplot(111, autoscale_on=False, projection='3d')
+plt.gca().set_aspect('equal', adjustable='box')
+ax.grid()
+
+line, = ax.plot([], [], [], 'o-', lw=2)
+
+x1 = [None]*int(steps)
+y1 = [None]*int(steps)
+
+for i in range(len(y)):
+    x1[i] = y[i][0]
+    y1[i] = y[i][1]
+
+def init():
+
+    line.set_data([], [], [])
+    return line,
+
+def animate(i):
+
+    thisx = [0, x1[i]]
+    thisy = [0, y1[i]]
+    thisz = [0, 0]
+
+    line.set_data(thisx, thisy, thisz)
+    return line,
+
+ani = animation.FuncAnimation(fig, animate, np.arange(1, len(y)),
+                              interval=25, blit=True, init_func=init)
+
+plt.show()

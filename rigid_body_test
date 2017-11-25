@@ -1,0 +1,74 @@
+import numpy as np
+import math
+from numpy.linalg import inv
+import rigid_body
+
+pi = math.pi
+Tr = np.trace
+Dot = np.dot
+Diad = np.outer
+Matmul = np.matmul
+
+d_l = 0.5
+R = 0.01
+rho = 2700
+m = R*R*pi*d_l*rho
+
+u = np.array([1, 0, 0])
+v = np.array([0, 1, 0])
+
+r_i = np.array([0, 0, 0])
+r_j = np.array([0, 0, d_l])
+r_G = np.array([0, 0, 0.5*d_l])
+
+X = np.array([r_j - r_i, u, v])
+a = Matmul(inv(X), r_G - r_i)
+
+Thetax = 0.25*m*R*R + (1/12)*m*d_l*d_l
+Thetaz = 0.5*m*R*R
+
+Js = np.array([[Thetax, 0, 0], [0, Thetax, 0], [0, 0, Thetaz]])
+
+ksi = 0.5*Tr(Js) - Js[0, 0]
+eta = 0.5*Tr(Js) - Js[1, 1]
+zeta = 0.5*Tr(Js) - Js[2, 2]
+
+rho_i = r_i - r_G
+tr_rho_i = rho_i.transpose()
+
+Js_a = np.array([[ksi, 0, 0], [0, eta, 0], [0, 0, zeta]])
+J_i = Js_a + m*Diad(rho_i, tr_rho_i)
+Z = inv(X).dot(J_i).dot(inv(X.transpose()))
+
+
+M_11 = np.array((m - 2*m*a[0] + Z[0, 0])*np.eye(3))
+M_12 = np.array((m*a[0] - Z[0, 0])*np.eye(3))
+M_13 = np.array((m*a[1] - Z[0, 1])*np.eye(3))
+M_14 = np.array((m*a[2] - Z[0, 2])*np.eye(3))
+
+M_22 = np.array((Z[0, 0])*np.eye(3))
+M_23 = np.array((Z[0, 1])*np.eye(3))
+M_24 = np.array((Z[0, 2])*np.eye(3))
+M_33 = np.array((Z[1, 1])*np.eye(3))
+M_34 = np.array((Z[1, 2])*np.eye(3))
+M_44 = np.array((Z[2, 2])*np.eye(3))
+
+M = np.array([[M_11, M_12, M_13, M_14],
+              [M_12, M_22, M_23, M_24],
+              [M_13, M_23, M_33, M_34],
+              [M_14, M_24, M_34, M_44]])
+
+
+def flatten(A):
+    rows, cols = A.shape[0:2]
+    for i in range(rows):
+        for j in range(0, cols):
+            row = np.append(row, A[i, j], 1) if j > 0 else A[i, 0]
+        hm = np.append(hm, row, 0) if i > 0 else row
+    return hm
+
+cylinder = rigid_body.RigidBody(R, d_l, rho)
+
+print(cylinder.mass_matrix-flatten(M))
+
+

@@ -2,7 +2,7 @@ from sympy import *
 from scipy import sparse
 from numpy import empty
 from scipy.sparse.linalg import dsolve
-from numpy import sin, cos
+
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
@@ -127,28 +127,16 @@ def matrix2sparse(mi):
     return sparse.csr_matrix(a)
 
 
-def init():
-    line.set_data([], [])
-    return line
-
-
-def animate(i,y):
-    thisx = [0, 0, y[i][0]]
-    thisy = [0, 0, y[i][1]]
-
-    line.set_data(thisx, thisy)
-    return line
-
-
 t = Symbol('t')
 lbd = Symbol('lbd')
 x = Function('x')(t)
 y = Function('y')(t)
 m = 1
 g = -9.81
-d_l = 1
+d_l = 2
 alpha = 10
 h = 0.01
+R = 0.5
 beta = 10
 
 phi_r = Matrix([phi(x, y, d_l).diff(x), phi(x, y, d_l).diff(y)])
@@ -185,37 +173,48 @@ t[0] = 0
 start = time.clock()
 y_test = sys_rk4(C_c, Q_c, r, r_t, y[0], y_t[0], h)[0]
 end = time.clock()
-for i in range(steps-1):
-    y[i+1] = sys_rk4(C_c, Q_c, r, r_t, y[i], y_t[i], h)[0]
-    y_t[i+1] = sys_rk4(C_c, Q_c, r, r_t, y[i], y_t[i], h)[1]
-    t[i+1] = i*h
+#for i in range(steps-1):
+#    y[i+1] = sys_rk4(C_c, Q_c, r, r_t, y[i], y_t[i], h)[0]
+#    y_t[i+1] = sys_rk4(C_c, Q_c, r, r_t, y[i], y_t[i], h)[1]
+#    t[i+1] = i*h
 
 fig = plt.figure()
 ax = fig.add_subplot(111, autoscale_on=False, projection='3d')
 plt.gca().set_aspect('equal', adjustable='box')
 ax.grid()
+ax.set_xlim3d(-1.5, 1.5)
+ax.set_ylim3d(-1.5, 1.5)
+ax.set_zlim3d(-1.5, 1.5)
+ax.view_init(30,60)
 
 line, = ax.plot([], [], [], 'o-', lw=2)
 
 x1 = [None]*int(steps)
 y1 = [None]*int(steps)
+z1 = [0]*int(steps)
 
 for i in range(len(y)):
     x1[i] = y[i][0]
     y1[i] = y[i][1]
 
+
 def init():
 
-    line.set_data([], [], [])
+    line.set_data([], [])
+    line.set_3d_properties([])
     return line,
+
 
 def animate(i):
 
     thisx = [0, x1[i]]
     thisy = [0, y1[i]]
-    thisz = [0, 0]
+    thisz = [0, z1[i]]
 
-    line.set_data(thisx, thisy, thisz)
+
+    line.set_data(thisx, thisz)
+    line.set_3d_properties(thisy)
+
     return line,
 
 ani = animation.FuncAnimation(fig, animate, np.arange(1, len(y)),

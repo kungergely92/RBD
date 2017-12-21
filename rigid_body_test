@@ -1,4 +1,5 @@
 import cylinder
+import constrains
 from sympy import pprint
 
 d_l = 0.5
@@ -6,8 +7,10 @@ R = 0.01
 rho = 2700
 
 cylinder_1 = cylinder.Cylinder(R, d_l, rho)
+cylinder_2 = cylinder.Cylinder(R, d_l, rho)
+cylinder_3 = cylinder.Cylinder(R, d_l, rho)
 
-pprint(cylinder_1.constraints)
+pprint(len(cylinder_1.constraint_list))
 
 
 

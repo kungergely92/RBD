@@ -4,6 +4,8 @@ import moment_of_inertia
 import utilities
 import numpy as np
 from numpy.linalg import inv
+from mechanism import Mechanism
+from utilities import symbolic_state_variables
 
 
 mass_matrix_assembly = utilities.mass_matrix_assembly
@@ -23,14 +25,8 @@ class RigidBody(object):
         self.mass = mass
         self.jsa = jsa
         self.mass_matrix = None
-        self.u_sym = []
-        self.v_sym = []
-        self.dt_u_sym = []
-        self.dt_v_sym = []
-        self.r_i_sym = []
-        self.r_j_sym = []
-        self.dt_r_i_sym = []
-        self.dt_r_j_sym = []
+        self.r_i = BasePoint('r_i', RigidBody.counter)
+        self.r_j = BasePoint('r_j', RigidBody.counter)
         self.velocity = []
         self.r_i_0 = np.array([0, 0, 0])
         self.r_j_0 = np.array([0, 0, length])
@@ -47,6 +43,7 @@ class RigidBody(object):
         self.calculate_mass_matrix(self.mass, self.jsa)
         self.symbolic_state_variables()
         self.rigid_body_constraints()
+        Mechanism.rigid_body_list.append(self)
 
     def calculate_mass_matrix(self, m, jsa):
         """Calculates the 12x12 mass matrix of the rigid body object."""
@@ -64,9 +61,6 @@ class RigidBody(object):
         """Defines symbolic state variables of the rigid body."""
         t = sym.Symbol('t')
 
-        u_x = sym.Function('u_{},1'.format(str(self.ID)))(t)
-        u_y = sym.Function('u_{},2'.format(str(self.ID)))(t)
-        u_z = sym.Function('u_{},3'.format(str(self.ID)))(t)
 
         v_x = sym.Function('v_{},1'.format(str(self.ID)))(t)
         v_y = sym.Function('v_{},2'.format(str(self.ID)))(t)
@@ -87,18 +81,38 @@ class RigidBody(object):
 
         self.u_sym = u
         self.v_sym = v
-        self.dt_u_sym = u.diff(t)
-        self.dt_v_sym = v.diff(t)
         self.r_i_sym = r_i
         self.r_j_sym = r_j
-        self.dt_r_i_sym = r_i.diff(t)
-        self.dt_r_j_sym = r_j.diff(t)
 
     def rigid_body_constraints(self):
-        phi_1 = constant_distance(self.r_i_sym-self.r_j_sym, self.length)
-        phi_2 = constant_distance(self.u_sym, 1)
-        phi_3 = constant_distance(self.v_sym, 1)
-        phi_4 = perpendicular(self.u_sym, self.v_sym)
-        phi_5 = perpendicular(self.r_i_sym-self.r_j_sym, self.u_sym)
-        phi_6 = perpendicular(self.r_i_sym-self.r_j_sym, self.v_sym)
-        self.constraints = [phi_1, phi_2, phi_3, phi_4, phi_5, phi_6]
+        constant_distance(self.r_i_sym-self.r_j_sym, self.length)
+        constant_distance(self.u_sym, 1)
+        constant_distance(self.v_sym, 1)
+        perpendicular(self.u_sym, self.v_sym)
+        perpendicular(self.r_i_sym-self.r_j_sym, self.u_sym)
+        perpendicular(self.r_i_sym-self.r_j_sym, self.v_sym)
+
+
+class BasePoint(object):
+    """BasePoint object with symbolic and numeric coordinates"""
+    def __init__(self, name, ID):
+        self.symbolic_velocity = []
+        self.local_coordinates = np.array([0, 0, 0])
+        self.local_velocities = np.array([0, 0, 0])
+        self.global_coordinates = np.array([0, 0, 0])
+        self.global_velocities = np.array([0, 0, 0])
+        self.name = name
+        self.ID = ID
+        self.symbolic_coordinates = symbolic_state_variables(self.name, self.ID)
+
+
+class BaseVector(object):
+    """BaseVector object with symbolic and numeric coordinates"""
+    def __init__(self, name, ID):
+        self.symbolic_coordinates = []
+        self.symbolic_velocity = []
+        self.global_coordinates = np.array([0, 0, 0])
+        self.global_velocities = np.array([0, 0, 0])
+        self.name = name
+        self.ID = ID
+        self.symbolic_coordinates = symbolic_state_variables(self.name, self.ID)

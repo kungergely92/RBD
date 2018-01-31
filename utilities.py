@@ -1,5 +1,6 @@
-
+import sympy as sym
 import numpy as np
+from mechanism import Mechanism
 from numpy import linalg as la
 
 
@@ -36,13 +37,33 @@ def mass_matrix_assembly(mass, z_matrix, a_vector):
     return flatten(mass_hm)
 
 
-def perpendicular(sym_matrix_a, sym_matrix_b):
-    """Returns with the dot product of the input vectors"""
-    return sym_matrix_a.dot(sym_matrix_b)
-
-
 def constant_distance(sym_matrix, length):
     """Constant distance constraint, defined as
     x^2+y^2+z^2-length^2"""
-    return sym_matrix.norm()**2 - length**2
+    dist_length = sym_matrix.norm()**2 - length**2
+    Mechanism.constraint_list.append(dist_length)
 
+
+def perpendicular(sym_vector_a, sym_vector_b):
+    """Dot product of the input vectors of the rigid body objects."""
+    a_dot_b = sym_vector_a.dot(sym_vector_b)
+    Mechanism.constraint_list.append(a_dot_b)
+
+
+def parallel(sym_matrix_a, sym_matrix_b):
+    """Cross product of the input vectors of the rigid body objects."""
+    a_cross_b = sym.cross(sym_matrix_a, sym_matrix_b)
+    Mechanism.constraint_list.append(a_cross_b)
+
+
+def symbolic_state_variables(name, ID):
+    """Generates symbolic vector in function of 't' time, with 'name'
+    and 'ID'."""
+
+    t = sym.Symbol('t')
+
+    x = sym.Function('{}_{},1'.format(name, str(ID)))(t)
+    y = sym.Function('{}_{},2'.format(name, str(ID)))(t)
+    z = sym.Function('{}_{},3'.format(name, str(ID)))(t)
+
+    return sym.Matrix([x, y, z])

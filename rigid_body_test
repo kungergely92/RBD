@@ -1,5 +1,5 @@
 import cylinder
-import constrains
+import mechanism
 from sympy import pprint
 
 d_l = 0.5
@@ -10,7 +10,11 @@ cylinder_1 = cylinder.Cylinder(R, d_l, rho)
 cylinder_2 = cylinder.Cylinder(R, d_l, rho)
 cylinder_3 = cylinder.Cylinder(R, d_l, rho)
 
-pprint(len(cylinder_1.constraint_list))
+mechanism = mechanism.Mechanism()
+
+mechanism.build_global_mass_matrix()
+
+pprint(mechanism.global_mass_matrix.shape)
 
 
 

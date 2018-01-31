@@ -11,4 +11,3 @@ class Cylinder(Mechanism, RigidBody):
         self.density = density
         self.mass, self.jsa = jsa_cylinder(radius, length, density)
         RigidBody.__init__(self, self.mass, self.jsa, self.length)
-        Mechanism.__init__(self)

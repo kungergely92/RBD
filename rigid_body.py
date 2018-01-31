@@ -1,6 +1,5 @@
 import sympy as sym
 from sympy import Matrix
-import moment_of_inertia
 import utilities
 import numpy as np
 from numpy.linalg import inv

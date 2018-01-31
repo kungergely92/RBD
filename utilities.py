@@ -1,6 +1,6 @@
 
 import numpy as np
-from numpy import linalg as la
+from mechanism import Mechanism
 
 
 def flatten(hypermatrix):
@@ -45,4 +45,7 @@ def constant_distance(sym_matrix, length):
     """Constant distance constraint, defined as
     x^2+y^2+z^2-length^2"""
     return sym_matrix.norm()**2 - length**2
+
+def create_constraint(constraint_list):
+    Mechanism.constraint_list.extend(constraint_list)
 

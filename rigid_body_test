@@ -1,5 +1,5 @@
 import cylinder
-import constrains
+import constraints
 from sympy import pprint
 
 d_l = 0.5

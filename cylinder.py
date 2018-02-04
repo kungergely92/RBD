@@ -1,9 +1,9 @@
 from rigid_body import RigidBody
 from moment_of_inertia import jsa_cylinder
-from mechanism import Mechanism
+import numpy as np
 
 
-class Cylinder(Mechanism, RigidBody):
+class Cylinder(RigidBody):
     """Makes cylinder object."""
     def __init__(self, radius=1, length=1, density=1):
         self.radius = radius

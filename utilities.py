@@ -37,10 +37,10 @@ def mass_matrix_assembly(mass, z_matrix, a_vector):
     return flatten(mass_hm)
 
 
-def constant_distance(sym_matrix, length):
+def constant_distance(symbolic_matrix, length):
     """Constant distance constraint, defined as
     x^2+y^2+z^2-length^2"""
-    dist_length = sym_matrix.norm()**2 - length**2
+    dist_length = symbolic_matrix.norm()**2 - length**2
     Mechanism.constraint_list.append(dist_length)
 
 

@@ -14,7 +14,7 @@ mechanism = mechanism.Mechanism()
 
 mechanism.build_global_mass_matrix()
 
-pprint(mechanism.global_mass_matrix.shape)
+pprint(len(mechanism.constraint_list))
 
 
 

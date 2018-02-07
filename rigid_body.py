@@ -1,7 +1,4 @@
 import sympy as sym
-from sympy import Matrix
-import moment_of_inertia
-import utilities
 import numpy as np
 from numpy.linalg import inv
 from mechanism import Mechanism
@@ -24,10 +21,6 @@ class RigidBody(object):
         self.r_j = BaseObject('r_j', self.ID)
         self.u = BaseObject('u', self.ID)
         self.v = BaseObject('v', self.ID)
-        self.sym_vars = [self.r_i.symbolic_coordinates,
-                         self.r_j.symbolic_coordinates,
-                         self.u.symbolic_coordinates,
-                         self.u.symbolic_coordinates]
         self.r_i.local_coordinates = np.array([0, 0, 0])
         self.r_j.local_coordinates = np.array([0, 0, length])
         self.u.local_coordinates = np.array([1, 0, 0])
@@ -78,8 +71,5 @@ class BaseObject(object):
         self.global_velocities = np.array([0, 0, 0])
         self.name = name
         self.ID = ID
-        self.symbolic_coordinates = symbolic_state_variables(self.name,
-                                                             self.ID)
+        self.symbolic_coordinates = symbolic_state_variables(self.name, self.ID)
         self.symbolic_velocity = self.symbolic_coordinates.diff(t)
-
-

@@ -1,6 +1,5 @@
 from rigid_body import RigidBody
 from moment_of_inertia import jsa_cylinder
-import numpy as np
 
 
 class Cylinder(RigidBody):

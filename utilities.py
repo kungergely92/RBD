@@ -54,20 +54,22 @@ def constant_distance(symbolic_matrix, length):
     x^2+y^2+z^2-length^2"""
     dist_length = symbolic_matrix[0]**2 + symbolic_matrix[1]**2 + \
                   symbolic_matrix[2]**2 - length**2
-    Mechanism.constraint_list.append(dist_length)
+
+    return dist_length
 
 
 def perpendicular(sym_vector_a, sym_vector_b):
     """Dot product of the input vectors of the rigid body objects."""
     a_dot_b = sym_vector_a.dot(sym_vector_b)
-    Mechanism.constraint_list.append(a_dot_b)
+
+    return a_dot_b
 
 
-def parallel(sym_matrix_a, sym_matrix_b):
-    """Cross product of the input vectors of the rigid body objects."""
-    a_cross_b = sym.cross(sym_matrix_a, sym_matrix_b)
-    Mechanism.constraint_list.append(a_cross_b)
+#def parallel(sym_matrix_a, sym_matrix_b):
+#    """Cross product of the input vectors of the rigid body objects."""
+#    a_cross_b = sym.cross(sym_matrix_a, sym_matrix_b)
 
+#    return a_cross_b
 
 def symbolic_state_variables(name, ID):
     """Generates symbolic vector in function of 't' time, with 'name'
@@ -78,8 +80,6 @@ def symbolic_state_variables(name, ID):
     x = sym.Function('{}_{},1'.format(name, str(ID)))(t)
     y = sym.Function('{}_{},2'.format(name, str(ID)))(t)
     z = sym.Function('{}_{},3'.format(name, str(ID)))(t)
-
-    Mechanism.symbolic_variable_list.extend([x, y, z])
 
     return sym.Matrix([x, y, z])
 

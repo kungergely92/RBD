@@ -1,6 +1,5 @@
 import sympy as sym
 import numpy as np
-from mechanism import Mechanism
 
 
 def flatten(hypermatrix):
@@ -65,11 +64,18 @@ def perpendicular(sym_vector_a, sym_vector_b):
     return a_dot_b
 
 
-#def parallel(sym_matrix_a, sym_matrix_b):
-#    """Cross product of the input vectors of the rigid body objects."""
-#    a_cross_b = sym.cross(sym_matrix_a, sym_matrix_b)
+def parallel(sym_matrix_a, sym_matrix_b):
+    """Cross product of the input vectors of the rigid body objects."""
 
-#    return a_cross_b
+    a_cross_b = sym.Matrix([sym_matrix_a[1] * sym_matrix_b[2] -
+                            sym_matrix_a[2] * sym_matrix_b[1],
+                            sym_matrix_a[2] * sym_matrix_b[0] -
+                            sym_matrix_a[0] * sym_matrix_b[2],
+                            sym_matrix_a[0] * sym_matrix_b[1] -
+                            sym_matrix_a[1] * sym_matrix_b[0]])
+
+    return a_cross_b
+
 
 def symbolic_state_variables(name, ID):
     """Generates symbolic vector in function of 't' time, with 'name'

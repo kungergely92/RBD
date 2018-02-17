@@ -11,7 +11,12 @@ class RigidBody(object):
     counter = 0
 
     def __init__(self, mass, jsa, length):
-        """Initializes RigidBody object, with mass "jsa" matrix, and length."""
+        """
+        Initializes RigidBody object, with mass "jsa" matrix, and length.
+        :param mass: mass of RigidBody object
+        :param jsa: jsa matrix
+        :param length:
+        """
         RigidBody.counter += 1
         self.length = length
         self.ID = RigidBody.counter
@@ -74,7 +79,7 @@ class RigidBody(object):
 
 class BaseObject(object):
     """BaseObject with symbolic and numeric coordinates. Can be used to define
-    base points, and base vectors"""
+    base points, and base vectors."""
     def __init__(self, name, ID):
 
         t = sym.Symbol('t')
@@ -87,3 +92,29 @@ class BaseObject(object):
         self.ID = ID
         self.symbolic_coordinates = symbolic_state_variables(self.name, self.ID)
         self.symbolic_velocity = self.symbolic_coordinates.diff(t)
+
+
+class Coincident(object):
+    """"""
+    def __init__(self, base_object_1, base_object_2):
+
+        self.constraint = constant_distance(base_object_1.symbolic_coordinates -
+                                            base_object_2.symbolic_coordinates,
+                                            0)
+
+
+class ConstantDistance(object):
+    """"""
+    def __init__(self, base_object_1, base_object_2, distance):
+
+        self.constraint = constant_distance(base_object_1.symbolic_coordinates -
+                                            base_object_2.symbolic_coordinates,
+                                            distance)
+
+
+class Perpendicular(object):
+    """"""
+    def __init__(self, base_object_1, base_object_2):
+
+        self.constraint = perpendicular(base_object_1.symbolic_coordinates,
+                                        base_object_2.symbolic_coordinates)

@@ -27,6 +27,10 @@ class RigidBody(object):
         self.r_j = BaseObject('r_j', self.ID)
         self.u = BaseObject('u', self.ID)
         self.v = BaseObject('v', self.ID)
+        self.base_points = [self.r_i,
+                             self.r_j]
+        self.base_vectors = [self.u,
+                             self.v]
         self.r_i.local_coordinates = np.array([0, 0, 0])
         self.r_j.local_coordinates = np.array([0, 0, length])
         self.u.local_coordinates = np.array([1, 0, 0])
@@ -96,11 +100,16 @@ class BaseObject(object):
 
 class Coincident(object):
     """"""
-    def __init__(self, base_object_1, base_object_2):
+    def __init__(self, selection_1, selection_2):
 
-        self.constraint = constant_distance(base_object_1.symbolic_coordinates -
-                                            base_object_2.symbolic_coordinates,
+        self.constraint = constant_distance(selection_1[0].symbolic_coordinates -
+                                            selection_2[0].symbolic_coordinates,
                                             0)
+
+        translation_vector = selection_2[0].global_coordinates - \
+                             selection_1[0].global_coordinates
+
+        
 
 
 class ConstantDistance(object):

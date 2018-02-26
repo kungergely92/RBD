@@ -99,4 +99,13 @@ def sym_matrix_to_list(sym_mtx):
     return sym_list
 
 
+def base_object_select(rigid_body, idx):
+
+    if idx < 2:
+        return [rigid_body.base_points[idx], rigid_body.base_points[idx-1]]
+    else:
+        idx = idx - 2
+        return [rigid_body.base_vectors[idx], rigid_body.base_vectors[idx-1]]
+
+
 

@@ -84,19 +84,19 @@ class BaseObject(object):
 
         t = sym.Symbol('t')
 
-        self.local_coordinates = np.array([0, 0, 0])
-        self.local_velocities = np.array([0, 0, 0])
-        self.global_coordinates = np.array([0, 0, 0])
-        self.global_velocities = np.array([0, 0, 0])
         self.name = name
         self.ID = ID
+        self.local_coordinates = np.array([0, 0, 0])
+        self.global_coordinates = np.array([0, 0, 0])
+        self.global_velocities = np.array([0, 0, 0])
         self.symbolic_coordinates = symbolic_state_variables(self.name, self.ID)
         self.symbolic_velocity = self.symbolic_coordinates.diff(t)
 
 
 class Coincident(object):
     """"""
-    def __init__(self, base_object_1, base_object_2):
+    def __init__(self, rigid_body_1, rigid_body_2, base_object_1,
+                 base_object_2):
 
         self.constraint = constant_distance(base_object_1.symbolic_coordinates -
                                             base_object_2.symbolic_coordinates,
@@ -105,7 +105,8 @@ class Coincident(object):
 
 class ConstantDistance(object):
     """"""
-    def __init__(self, base_object_1, base_object_2, distance):
+    def __init__(self, base_object_1, base_object_2, rigid_body_1,
+                 rigid_body_2, distance):
 
         self.constraint = constant_distance(base_object_1.symbolic_coordinates -
                                             base_object_2.symbolic_coordinates,

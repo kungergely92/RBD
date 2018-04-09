@@ -28,13 +28,17 @@ class RigidBody(object):
         self.u = BaseObject('u', self.ID)
         self.v = BaseObject('v', self.ID)
         self.base_points = [self.r_i,
-                             self.r_j]
+                            self.r_j]
         self.base_vectors = [self.u,
                              self.v]
         self.r_i.local_coordinates = np.array([0, 0, 0])
         self.r_j.local_coordinates = np.array([0, 0, length])
+        self.r_i.global_coordinates = np.array([0, 0, 0])
+        self.r_j.global_coordinates = np.array([0, 0, length])
         self.u.local_coordinates = np.array([1, 0, 0])
         self.v.local_coordinates = np.array([0, 1, 0])
+        self.u.global_coordinates = np.array([1, 0, 0])
+        self.v.global_coordinates = np.array([0, 1, 0])
         self.r_g_loc = np.array([0, 0, 0.5 * length])
         self.make_symbolic_variables()
         self.calculate_mass_matrix(mass, jsa)
@@ -80,11 +84,17 @@ class RigidBody(object):
 
         self.symbolic_variables = symbolic_variable_list
 
+    def move(self, translation_vector):
+
+        for i in range(2):
+            self.base_points[i].global_coordinates = \
+                self.base_points[i].global_coordinates + translation_vector
+
 
 class BaseObject(object):
     """BaseObject with symbolic and numeric coordinates. Can be used to define
     base points, and base vectors."""
-    def __init__(self, name, ID):
+    def __init__(self, name, ID, sym_pos=sym.Matrix([0, 0, 0])):
 
         t = sym.Symbol('t')
 
@@ -92,38 +102,17 @@ class BaseObject(object):
         self.local_velocities = np.array([0, 0, 0])
         self.global_coordinates = np.array([0, 0, 0])
         self.global_velocities = np.array([0, 0, 0])
+        self.sym_pos = sym_pos
         self.name = name
         self.ID = ID
         self.symbolic_coordinates = symbolic_state_variables(self.name, self.ID)
         self.symbolic_velocity = self.symbolic_coordinates.diff(t)
 
+    def move(self, translation_vector):
 
-class Coincident(object):
-    """"""
-    def __init__(self, selection_1, selection_2):
-
-        self.constraint = constant_distance(selection_1[0].symbolic_coordinates -
-                                            selection_2[0].symbolic_coordinates,
-                                            0)
-
-        translation_vector = selection_2[0].global_coordinates - \
-                             selection_1[0].global_coordinates
-
-        
+        self.global_coordinates = self.global_coordinates + translation_vector
 
 
-class ConstantDistance(object):
-    """"""
-    def __init__(self, base_object_1, base_object_2, distance):
-
-        self.constraint = constant_distance(base_object_1.symbolic_coordinates -
-                                            base_object_2.symbolic_coordinates,
-                                            distance)
 
 
-class Perpendicular(object):
-    """"""
-    def __init__(self, base_object_1, base_object_2):
 
-        self.constraint = perpendicular(base_object_1.symbolic_coordinates,
-                                        base_object_2.symbolic_coordinates)

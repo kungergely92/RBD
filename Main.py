@@ -24,8 +24,8 @@ def cm_rhs(ci, bi, xi):
     unknowns. It provides the coefficient matrix of the linear algebraic
     equation system, and the right hand side of the equation."""
 
-    z = zeros(ci.shape[0], ci.shape[1])
-    n_b = zeros(bi.shape[0], bi.shape[1])
+    z = zeros(ci.shape[0], ci.shape[1]) #Makes zeros matrix of the same shape as the coefficient matrix
+    n_b = zeros(bi.shape[0], bi.shape[1]) # Makes zeros matrix(column vector) as the right hand side
     s = 0
     for i, bi_val in enumerate(bi):
         for j, xi_val in enumerate(xi):

@@ -108,4 +108,23 @@ def base_object_select(rigid_body, idx):
         return [rigid_body.base_vectors[idx], rigid_body.base_vectors[idx-1]]
 
 
+def cm_rhs(ci, bi, xi):
+
+    """Coefficient Matrix Right Hand Side: The function takes the coefficient
+    matrix of the Lagrangian equations of motion of first kind, the second
+    time derivative of the geometrical constraints, and the vectors of the
+    unknowns. It provides the coefficient matrix of the linear algebraic
+    equation system, and the right hand side of the equation."""
+
+    z = sym.zeros(ci.shape)  # Makes zeros matrix of the same shape as the coefficient matrix
+    n_b = sym.zeros(bi.shape)  # Makes zeros matrix(column vector) as the right hand side
+    s = 0
+    for i, bi_val in enumerate(bi):
+        for j, xi_val in enumerate(xi):
+            z[i-bi.shape[0], j] = bi_val.coeff(xi_val)
+            s += bi_val.coeff(xi_val)*xi_val
+        n_b[i] = bi_val - s
+        s = 0
+
+    return ci - z, n_b
 

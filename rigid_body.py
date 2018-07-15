@@ -109,7 +109,11 @@ class Coincident(object):
         translation_vector = selection_2[0].global_coordinates - \
                              selection_1[0].global_coordinates
 
-        
+        selection_1[0].global_coordinates = selection_1[0].global_coordinates + \
+                                            translation_vector
+
+        selection_1[1].global_coordinates = selection_1[1].global_coordinates + \
+                                            translation_vector
 
 
 class ConstantDistance(object):
